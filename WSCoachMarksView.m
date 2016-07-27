@@ -21,6 +21,13 @@ static const BOOL kEnableSkipButton = YES;
     NSUInteger markIndex;
     UILabel *lblContinue;
     UIButton *btnSkipCoach;
+    
+    NSString *gesture;
+    UITapGestureRecognizer *tapGesture;
+    UISwipeGestureRecognizer *swipeDownGesture;
+    UISwipeGestureRecognizer *swipeUpGesture;
+    UISwipeGestureRecognizer *swipeLeftGesture;
+    UISwipeGestureRecognizer *swipeRightGesture;
 }
 
 #pragma mark - Properties
@@ -80,12 +87,33 @@ static const BOOL kEnableSkipButton = YES;
     // Shape layer mask
     mask = [CAShapeLayer layer];
     [mask setFillRule:kCAFillRuleEvenOdd];
-    [mask setFillColor:[[UIColor colorWithHue:0.0f saturation:0.0f brightness:0.0f alpha:0.9f] CGColor]];
+    [mask setFillColor:[[UIColor colorWithHue:0.0f saturation:0.0f brightness:0.0f alpha:0.7f] CGColor]];
     [self.layer addSublayer:mask];
     
     // Capture touches
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
-    [self addGestureRecognizer:tapGestureRecognizer];
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
+    tapGesture.delegate = self;
+    [self addGestureRecognizer:tapGesture];
+    
+    swipeDownGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
+    swipeDownGesture.direction = UISwipeGestureRecognizerDirectionDown;
+    swipeDownGesture.delegate = self;
+    [self addGestureRecognizer:swipeDownGesture];
+    
+    swipeUpGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
+    swipeUpGesture.direction = UISwipeGestureRecognizerDirectionUp;
+    swipeUpGesture.delegate = self;
+    [self addGestureRecognizer:swipeUpGesture];
+    
+    swipeLeftGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
+    swipeLeftGesture.direction = UISwipeGestureRecognizerDirectionLeft;
+    swipeLeftGesture.delegate = self;
+    [self addGestureRecognizer:swipeLeftGesture];
+    
+    swipeRightGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTap:)];
+    swipeRightGesture.direction = UISwipeGestureRecognizerDirectionRight;
+    swipeRightGesture.delegate = self;
+    [self addGestureRecognizer:swipeRightGesture];
     
     // Captions
     self.lblCaption = [[UILabel alloc] initWithFrame:(CGRect){{0.0f, 0.0f}, {self.maxLblWidth, 0.0f}}];
@@ -102,6 +130,52 @@ static const BOOL kEnableSkipButton = YES;
     self.hidden = YES;
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if (gestureRecognizer == tapGesture) {
+        if ([gesture isEqualToString:@"tap"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if (gestureRecognizer == swipeDownGesture ){
+        if ([gesture isEqualToString:@"swipe"] || [gesture isEqualToString:@"swipeDown"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if (gestureRecognizer == swipeUpGesture ){
+        if ([gesture isEqualToString:@"swipe"] || [gesture isEqualToString:@"swipeUp"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if (gestureRecognizer == swipeLeftGesture){
+        if ([gesture isEqualToString:@"swipe"] || [gesture isEqualToString:@"swipeLeft"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if (gestureRecognizer == swipeRightGesture) {
+        if ([gesture isEqualToString:@"swipe"] || [gesture isEqualToString:@"swipeRight"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else {
+        return NO;
+    }
+}
 #pragma mark - Cutout modify
 
 - (void)setCutoutToRect:(CGRect)rect withShape:(NSString *)shape{
@@ -203,6 +277,11 @@ static const BOOL kEnableSkipButton = YES;
     NSString *shape = @"other";
     if([[markDef allKeys] containsObject:@"shape"])
         shape = [markDef objectForKey:@"shape"];
+    
+    gesture = @"tap";
+    if ([[markDef allKeys] containsObject:@"gesture"]) {
+        gesture = [markDef objectForKey:@"gesture"];
+    }
     
     // Delegate (coachMarksView:willNavigateTo:atIndex:)
     if ([self.delegate respondsToSelector:@selector(coachMarksView:willNavigateToIndex:)]) {
