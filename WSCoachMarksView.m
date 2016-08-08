@@ -24,6 +24,7 @@ static const BOOL kEnableSkipButton = YES;
     
     NSString *gesture;
     UITapGestureRecognizer *tapGesture;
+    UILongPressGestureRecognizer *longPressGesture;
     UISwipeGestureRecognizer *swipeDownGesture;
     UISwipeGestureRecognizer *swipeUpGesture;
     UISwipeGestureRecognizer *swipeLeftGesture;
@@ -115,6 +116,10 @@ static const BOOL kEnableSkipButton = YES;
     swipeRightGesture.delegate = self;
     [self addGestureRecognizer:swipeRightGesture];
     
+    longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(userDidLongPress:)];
+    longPressGesture.delegate = self;
+    [self addGestureRecognizer:longPressGesture];
+    
     // Captions
     self.lblCaption = [[UILabel alloc] initWithFrame:(CGRect){{0.0f, 0.0f}, {self.maxLblWidth, 0.0f}}];
     self.lblCaption.backgroundColor = [UIColor clearColor];
@@ -166,6 +171,14 @@ static const BOOL kEnableSkipButton = YES;
     }
     else if (gestureRecognizer == swipeRightGesture) {
         if ([gesture isEqualToString:@"swipe"] || [gesture isEqualToString:@"swipeRight"]) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+    else if (gestureRecognizer == longPressGesture) {
+        if ([gesture isEqualToString:@"tap"] || [gesture isEqualToString:@"longPress"]) {
             return YES;
         }
         else {
@@ -239,6 +252,11 @@ static const BOOL kEnableSkipButton = YES;
     [self goToCoachMarkIndexed:(markIndex+1)];
 }
 
+- (void)userDidLongPress:(UITapGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        [self goToCoachMarkIndexed:(markIndex+1)];
+    }
+}
 #pragma mark - Navigation
 
 - (void)start {
